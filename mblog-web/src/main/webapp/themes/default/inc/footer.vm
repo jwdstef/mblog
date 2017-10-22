@@ -34,8 +34,10 @@
 		<span>$!{site_copyright} <a
 			href="http://www.miitbeian.gov.cn/" target="_blank">$!{site_icp}</a>
 		</span>
-		<span class="pull-right">Powered By <a href="http://mtons.com/?copyright" target="_blank">Mtons</a></span>
-	</div>
+        <span class="pull-right">Powered By <a href="http://mtons.com/?copyright" target="_blank">Mtons</a>
+            <script type="text/javascript">var cnzz_protocol = (("https:" == document.location.protocol) ? " https://" : " http://");document.write(unescape("%3Cspan id='cnzz_stat_icon_1261567607'%3E%3C/span%3E%3Cscript src='" + cnzz_protocol + "s95.cnzz.com/z_stat.php%3Fid%3D1261567607%26show%3Dpic1' type='text/javascript'%3E%3C/script%3E"));</script>
+        </span>
+    </div>
 
 </footer>
 
