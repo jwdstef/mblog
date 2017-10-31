@@ -6,4 +6,4 @@ target
 build
 node_modules
 out/
-server-config
+env/

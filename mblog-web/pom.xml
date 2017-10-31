@@ -9,6 +9,47 @@
     <artifactId>mblog-web</artifactId>
     <packaging>war</packaging>
 
+    <profiles>
+        <!--开发环境-->
+        <profile>
+            <id>dev</id>
+            <properties>
+                <package.environment>dev</package.environment>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <build>
+                <filters>
+                    <filter>${basedir}/env/dev.properties</filter>
+                </filters>
+            </build>
+        </profile>
+        <profile>
+            <!--生产环境-->
+            <id>product</id>
+            <properties>
+                <package.environment>product</package.environment>
+            </properties>
+            <build>
+                <filters>
+                    <filter>${basedir}/env/product.properties</filter>
+                </filters>
+            </build>
+        </profile>
+    </profiles>
+    <build>
+        <finalName>mblog</finalName>
+        <resources>
+            <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
+
+
     <dependencies>
         <dependency>
             <groupId>com.mtons.mblog</groupId>
@@ -104,7 +145,4 @@
 
     </dependencies>
 
-    <build>
-        <finalName>mblog</finalName>
-    </build>
 </project>
