@@ -39,6 +39,10 @@ public interface Views {
 	String HOME_FAVORS = "/home/favors";
 	String HOME_FANS = "/home/fans";
 	String HOME_NOTIFIES = "/home/notifies";
+	String HOME_PICTURE = "/home/pictures";
+	String HOME_AUDIO = "/home/audio";
+	String HOME_VEDIO = "/home/vedio";
+	String HOME_OTHER = "/home/other";
 
 	String TA_HOME = "/ta/home";
 	String ACCOUNT_AVATAR = "/account/avatar";

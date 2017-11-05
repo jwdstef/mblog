@@ -96,6 +96,55 @@ public class HomeController extends BaseController {
 	}
 
 	/**
+	 * 图片
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/home/picture")
+	public String pictures(ModelMap model){
+
+		initUser(model);
+		return getView(Views.HOME_PICTURE);
+	}
+
+
+	/**
+	 * 音频
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/home/audio")
+	public String audio(ModelMap model){
+
+		initUser(model);
+		return getView(Views.HOME_AUDIO);
+	}
+
+	/**
+	 * 视频
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/home/vedio")
+	public String vedio(ModelMap model){
+
+		initUser(model);
+		return getView(Views.HOME_VEDIO);
+	}
+
+	/**
+	 * 其他文件
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/home/other")
+	public String other(ModelMap model){
+
+		initUser(model);
+		return getView(Views.HOME_OTHER);
+	}
+
+	/**
 	 * 我喜欢过的文章
 	 * @param model
 	 * @return
