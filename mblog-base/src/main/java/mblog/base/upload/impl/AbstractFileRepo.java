@@ -11,17 +11,23 @@ package mblog.base.upload.impl;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 
 import mblog.base.context.AppContext;
+import mblog.base.context.Global;
 import mblog.base.lang.MtonsException;
+import mblog.base.upload.QiniuService;
 import mblog.base.utils.FileNameUtils;
 import mblog.base.utils.ImageUtils;
+import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +47,10 @@ public abstract class AbstractFileRepo implements FileRepo {
 	protected AppContext appContext;
 	@Autowired
 	protected FileRepoFactory fileRepoFactory;
-	
+
+	@Resource(name = "qiniuSerivce")
+	private QiniuService qiniuService;
+
 	// 文件允许格式
 	protected String[] allowFiles = { ".gif", ".png", ".jpg", ".jpeg", ".bmp" };
 	
@@ -156,6 +165,8 @@ public abstract class AbstractFileRepo implements FileRepo {
 		return basePath + path;
 	}
 
+
+
 	@Override
 	public String storeScale(MultipartFile file, String basePath, int maxWidth) throws Exception {
 		validateFile(file);
@@ -202,6 +213,40 @@ public abstract class AbstractFileRepo implements FileRepo {
 		ImageUtils.scale(file.getAbsolutePath(), dest, width, height);
 		return basePath + path;
 	}
+
+	/**
+	 * 保存压缩图片到七牛
+	 * @param file
+	 * @param basePath
+	 * @param maxWidth
+	 * @return
+	 */
+	public String storeScaleToQiniu(MultipartFile file, String basePath, int maxWidth) throws IOException {
+		validateFile(file);
+
+		String root = getRoot();
+		String path = FileNameUtils.genPathAndFileName(getExt(file.getOriginalFilename()));
+		File temp = new File(root + appContext.getTempDir() + path);
+		String dest = root + basePath + path;
+		File destFile = new File(dest);
+		checkDirAndCreate(temp);
+		String key = path.substring(1,path.length());
+		try {
+			file.transferTo(temp);
+			// 根据临时文件生成略缩图
+			ImageUtils.scaleImageByWidth(temp.getAbsolutePath(),dest,maxWidth);
+			qiniuService.upload(destFile,key);
+
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			temp.delete();
+			destFile.delete();
+		}
+		String qiniuUrl = Global.getConfig("qiniu.url");
+		return qiniuUrl + key;
+	}
+
 
 	@Override
 	public int[] imageSize(String storePath) {

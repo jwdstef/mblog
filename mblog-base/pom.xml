@@ -75,6 +75,10 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.qiniu</groupId>
+			<artifactId>qiniu-java-sdk</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.apache.velocity</groupId>

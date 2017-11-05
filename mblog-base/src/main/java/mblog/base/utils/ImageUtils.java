@@ -101,6 +101,40 @@ public class ImageUtils {
         return true;
     }
 
+    /**
+     * 根据宽度缩放图片
+     * @param ori
+     * @param out
+     * @param maxSize
+     * @return
+     */
+    public static boolean scaleImageByWidth(String ori,OutputStream out,int maxSize) throws IOException {
+        File oriFile = new File(ori);
+        BufferedImage src = ImageIO.read(oriFile); // 读入文件
+        int w = src.getWidth();
+        int h = src.getHeight();
+
+        log.debug("origin with/height " + w + "/" + h);
+
+        int size = (int) Math.max(w, h);
+        int tow = w;
+        int toh = h;
+
+        if (size > maxSize) {
+            if (w > maxSize) {
+                tow = maxSize;
+                toh = h * maxSize / w;
+            } else {
+                tow = w * maxSize / h;
+                toh = maxSize;
+            }
+        }
+        log.debug("scaled with/height : " + tow + "/" + toh);
+        Thumbnails.of(ori).size(tow, toh).toOutputStream(out);
+        return true;
+    }
+
+
     public static void scale(String ori, String dest, int width, int height) throws IOException {
         File destFile = new File(dest);
         if (destFile.exists()) {

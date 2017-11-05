@@ -10,7 +10,10 @@
 package mblog.web.controller.desk.account;
 
 import mblog.base.context.AppContext;
+import mblog.base.context.Global;
 import mblog.base.data.Data;
+import mblog.base.upload.QiniuService;
+import mblog.base.utils.FileNameUtils;
 import mblog.base.utils.FilePathUtils;
 import mblog.base.utils.ImageUtils;
 import mblog.core.data.AccountProfile;
@@ -24,6 +27,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.annotation.Resource;
 import java.io.File;
 
 /**
@@ -37,6 +41,9 @@ public class AvatarController extends BaseController {
 	private AppContext appContext;
 	@Autowired
 	private UserService userService;
+
+	@Resource(name = "qiniuSerivce")
+	private QiniuService qiniuService;
 
 	@RequestMapping(value = "/avatar", method = RequestMethod.GET)
 	public String view() {
@@ -60,20 +67,23 @@ public class AvatarController extends BaseController {
 			// 目标目录
 			String ava100 = appContext.getAvaDir() + getAvaPath(profile.getId(), 100);
 			String dest = root + ava100;
+			// 判断父目录是否存在
+			File f = new File(dest);
 			try {
-				// 判断父目录是否存在
-				File f = new File(dest);
 		        if(!f.getParentFile().exists()){
 		            f.getParentFile().mkdirs();
 		        }
 		        // 在目标目录下生成截图
-		        String scalePath = f.getParent() + "/" + profile.getId() + ".jpg";
+				String fileName = FileNameUtils.genFileName()+".jpg";
+		        String scalePath = f.getParent() + "/" + fileName;
 				ImageUtils.truncateImage(temp.getAbsolutePath(), scalePath, x.intValue(), y.intValue(), width.intValue());
 		        
 				// 对结果图片进行压缩
 				ImageUtils.scaleImage(scalePath, dest, 100);
-
-				AccountProfile user = userService.updateAvatar(profile.getId(), ava100);
+				String key = ava100.substring(1,ava100.length());
+				qiniuService.upload(f,key);
+				String url = Global.getConfig("qiniu.url")+key;
+				AccountProfile user = userService.updateAvatar(profile.getId(), url);
 				putProfile(user);
 				
 				scale = new File(scalePath);
@@ -84,13 +94,15 @@ public class AvatarController extends BaseController {
 				if (scale != null) {
 					scale.delete();
 				}
+				f.delete();
 			}
 		}
 		return "redirect:/account/profile";
 	}
 	
 	public String getAvaPath(long uid, int size) {
-		String base = FilePathUtils.getAvatar(uid);
-		return String.format("/%s_%d.jpg", base, size);
+		//String base = FilePathUtils.getAvatar(uid);
+		String base = FileNameUtils.genFileName();
+		return String.format("/%s_%d_%d.jpg", base,uid, size);
 	}
 }

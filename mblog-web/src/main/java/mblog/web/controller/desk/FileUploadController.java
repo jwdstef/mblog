@@ -15,12 +15,16 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
 import com.alibaba.fastjson.JSON;
+import mblog.base.data.Data;
+import mblog.base.upload.QiniuService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import mblog.base.context.Global;
@@ -35,6 +39,10 @@ import mblog.web.controller.BaseController;
  */
 @Controller
 public class FileUploadController extends BaseController {
+
+	@Resource(name = "qiniuSerivce")
+	private QiniuService qiniuService;
+
 	private static HashMap<String, String> errorInfo = new HashMap<>();
 	// 文件允许格式
 	private static String[] allowFiles = { ".gif", ".png", ".jpg", ".jpeg", ".bmp" };
@@ -58,6 +66,7 @@ public class FileUploadController extends BaseController {
 	@RequestMapping("/aj_um_upload")
 	public void upload(@RequestParam(value = "upfile", required=false) MultipartFile file,
 					   HttpServletResponse response) throws IOException {
+
 		UMEditorResult data = new UMEditorResult();
 
 		// 保存图片
@@ -65,11 +74,10 @@ public class FileUploadController extends BaseController {
 			String fileName = file.getOriginalFilename();
 			if(file.getSize()>Long.parseLong(Global.getConfig("umeditor.fileSizeLimit"))*1024*1024){
 				data.setState(errorInfo.get("SIZE"));
-			}
-			else{
+			} else{
 				if (this.checkFileType(fileName)) {
 					try {
-						String path = fileRepoFactory.select().storeScale(file, appContext.getThumbsDir(), 600);
+						String path = fileRepoFactory.select().storeScaleToQiniu(file, appContext.getThumbsDir(), 600);
 						data.setName(fileName);
 						data.setOriginalName(fileName);
 						data.setType(getSuffix(fileName));
@@ -109,4 +117,10 @@ public class FileUploadController extends BaseController {
 		return false;
 	}
 
+	@RequestMapping("/uptoken.json")
+	@ResponseBody
+	public Data getUptoken(){
+		String token = qiniuService.generateUptoken();
+		return Data.success("success",token);
+	}
 }

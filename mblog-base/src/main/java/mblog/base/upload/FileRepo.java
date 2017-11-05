@@ -65,7 +65,17 @@ public interface FileRepo {
 	 * @throws IOException
 	 */
 	String storeScale(MultipartFile file, String basePath, int maxWidth) throws Exception;
-	
+
+	/**
+	 * 保存压缩图片到七牛
+	 * @param file
+	 * @param basePath
+	 * @param maxWidth
+	 * @return
+	 */
+	String storeScaleToQiniu(MultipartFile file, String basePath, int maxWidth) throws IOException;
+
+
 	/**
 	 * 存储压缩图片
 	 * @param file

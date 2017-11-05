@@ -48,7 +48,6 @@ public class Data implements Serializable {
      *
      * @param message
      * @return
-     * @deprecated with 1.0.3
      */
     public static final Data success(String message){
         return new Data(Data.CODE_SUCCESS, message, null);
